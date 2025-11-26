@@ -10,28 +10,12 @@ import openai
 MAX_NUM_TOKENS = 4096
 
 # Available LLMs via NewAPI (newapi.tsingyuai.com/v1)
-# All models use OpenAI SDK with NewAPI endpoint
+# Only these models are supported by NewAPI
 AVAILABLE_LLMS = [
-    # NewAPI supported models (primary)
     "gpt-5-nano",
     "gpt-5-mini",
     "gpt-5",
     "gpt-4o",
-    "gpt-4o-mini",
-    # Claude models via NewAPI
-    "claude-3-5-sonnet-20240620",
-    "claude-3-5-sonnet-20241022",
-    "claude-sonnet-4-5",
-    # Legacy OpenAI models
-    "gpt-4o-2024-05-13",
-    "gpt-4o-2024-08-06",
-    "o1-preview-2024-09-12",
-    "o1-mini-2024-09-12",
-    "o1-2024-12-17",
-    "o3-mini-2025-01-31",
-    # DeepSeek models
-    "deepseek-coder",
-    "deepseek-reasoner",
 ]
 
 

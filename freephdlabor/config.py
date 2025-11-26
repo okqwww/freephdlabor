@@ -5,12 +5,15 @@ import functools
 # Custom parameter filtering function for model-specific requirements
 # Note: NewAPI handles most parameter filtering automatically.
 # This decorator provides additional safety for edge cases.
+# Only NewAPI supported models: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
 def filter_model_params(original_func):
     """Decorator to filter unsupported parameters for different models.
 
     NewAPI (newapi.tsingyuai.com/v1) handles model routing and parameter
     filtering automatically. This decorator provides additional safety
     for edge cases and maintains compatibility with the codebase.
+
+    Only supports: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
     """
     @functools.wraps(original_func)
     def wrapper(*args, **kwargs):
@@ -35,43 +38,8 @@ def filter_model_params(original_func):
 
             return original_func(*args, **filtered_kwargs)
 
-        # ---- Anthropic / Claude branch ---------------------------------------
-        elif isinstance(model, str) and ("claude" in model or "anthropic" in model):
-            fk = kwargs.copy()
-
-            # Don't send both temperature + top_p to Claude
-            if "temperature" in fk and "top_p" in fk:
-                fk.pop("top_p")
-
-            # Normalize extended thinking:
-            # Accept user-friendly `budget_tokens` and convert to Anthropic `thinking`
-            budget = fk.pop("budget_tokens", None)
-            thinking = fk.get("thinking")
-
-            if budget is not None:
-                if budget <= 0:
-                    # Explicitly disable thinking if budget_tokens <= 0
-                    fk["thinking"] = {"type": "disabled"}
-                else:
-                    fk["thinking"] = {"type": "enabled", "budget_tokens": int(budget)}
-            elif thinking is None:
-                # If neither budget_tokens nor thinking provided, do nothing.
-                pass
-
-            # Enforce invariant: max_tokens > thinking.budget_tokens
-            # (If thinking is enabled, make sure max_tokens is large enough.)
-            if isinstance(fk.get("thinking"), dict) and fk["thinking"].get("type") == "enabled":
-                budget_tokens = int(fk["thinking"].get("budget_tokens", 0))
-                # margin gives the model room to write the final answer after reasoning
-                margin = 2048
-                mt = fk.get("max_tokens")
-                if mt is None or int(mt) <= budget_tokens:
-                    fk["max_tokens"] = int(budget_tokens + margin)
-
-            return original_func(*args, **fk)
-
         else:
-            # Other models use original parameters
+            # gpt-4o and other models use original parameters
             return original_func(*args, **kwargs)
     return wrapper
 

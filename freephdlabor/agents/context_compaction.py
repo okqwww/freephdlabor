@@ -20,65 +20,14 @@ from smolagents.monitoring import Timing
 
 
 # Model context limits mapping (input tokens)
+# Only NewAPI supported models: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
 MODEL_CONTEXT_LIMITS = {
-    # Claude models
-    "claude-3-5-sonnet-20241022": 200000,
-    "claude-3-5-sonnet-20240620": 200000,
-    "claude-3-5-haiku-20241022": 200000,
-    "claude-3-opus-20240229": 200000,
-    "claude-3-sonnet-20240229": 200000,
-    "claude-3-haiku-20240307": 200000,
-    "claude-sonnet-4-20250514": 200000,
-    "claude-opus-4": 200000,
-    "claude-sonnet-4-5": 200000,
-    "claude-sonnet-4-5-20250929": 200000,
-    # Anthropic prefixed versions (for LiteLLM routing)
-    "anthropic/claude-3-5-sonnet-20241022": 200000,
-    "anthropic/claude-3-5-sonnet-20240620": 200000,
-    "anthropic/claude-3-5-haiku-20241022": 200000,
-    "anthropic/claude-3-opus-20240229": 200000,
-    "anthropic/claude-3-sonnet-20240229": 200000,
-    "anthropic/claude-3-haiku-20240307": 200000,
-    "anthropic/claude-sonnet-4-20250514": 200000,
-    "anthropic/claude-opus-4": 200000,
-    "anthropic/claude-sonnet-4-5": 200000,
-    "anthropic/claude-sonnet-4-5-20250929": 200000,
-
-    # OpenAI GPT-5 models
+    # NewAPI supported models
     "gpt-5": 256000,
     "gpt-5-mini": 256000,
     "gpt-5-nano": 256000,
-    
-    # OpenAI models
     "gpt-4o": 128000,
-    "gpt-4o-mini": 128000,
-    "gpt-4-turbo": 128000,
-    "gpt-4": 8192,
-    "gpt-3.5-turbo": 16385,
-    "o1-preview": 128000,
-    "o1-mini": 128000,
-    "o3-mini": 128000,
-    "o3-2025-04-16": 200000,
-    "o4-mini": 128000,
-    
-    # Gemini models
-    "gemini-1.5-pro": 1000000,  # 1M tokens
-    "gemini-1.5-flash": 1000000,  # 1M tokens
-    "gemini-2.5-pro": 1000000,  # 1M tokens
-    "gemini-2.5-flash": 1000000,  # 1M tokens
-    "gemini/gemini-1.5-pro": 1000000,
-    "gemini/gemini-1.5-flash": 1000000,
-    "gemini/gemini-2.5-pro": 1000000,
-    "gemini/gemini-2.5-flash": 1000000,
-    
-    # DeepSeek models
-    "deepseek-chat": 64000,
-    "deepseek-coder": 64000,
-    "deepseek-reasoner": 64000,
-    
-    # Grok models
-    "grok-4-0709": 128000,
-    
+
     # Default fallback
     "default": 128000
 }
@@ -160,10 +109,8 @@ def get_model_context_limit(model) -> int:
     else:
         model_id = str(model)
     
-    # Clean model_id (remove provider prefixes)
+    # Clean model_id
     clean_model_id = model_id
-    if model_id.startswith('gemini/'):
-        clean_model_id = model_id  # Keep gemini/ prefix for mapping
     
     # Look up context limit
     context_limit = MODEL_CONTEXT_LIMITS.get(clean_model_id, MODEL_CONTEXT_LIMITS.get(model_id, MODEL_CONTEXT_LIMITS["default"]))

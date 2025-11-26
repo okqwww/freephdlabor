@@ -22,8 +22,8 @@ class StrategyFactory:
     ) -> LLMExtractionStrategy:
         return LLMExtractionStrategy(
             input_format=input_format,
-            provider="openrouter/google/gemini-2.0-flash-lite-001",  # Uses LiteLLM as provider
-            api_token=os.getenv("OPENROUTER_API_KEY"),
+            provider="openai/gpt-4o",  # Uses NewAPI via OpenAI SDK
+            api_token=os.getenv("OPENAI_API_KEY"),
             instruction=instruction
         )
 

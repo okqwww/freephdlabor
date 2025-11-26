@@ -22,40 +22,27 @@ class TokenTracker:
         )
         self.interactions = defaultdict(list)
 
+        # NewAPI supported models only: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
         self.MODEL_PRICES = {
-            "gpt-4o-2024-11-20": {
+            "gpt-4o": {
                 "prompt": 2.5 / 1000000,  # $2.50 per 1M tokens
                 "cached": 1.25 / 1000000,  # $1.25 per 1M tokens
                 "completion": 10 / 1000000,  # $10.00 per 1M tokens
             },
-            "gpt-4o-2024-08-06": {
-                "prompt": 2.5 / 1000000,  # $2.50 per 1M tokens
-                "cached": 1.25 / 1000000,  # $1.25 per 1M tokens
-                "completion": 10 / 1000000,  # $10.00 per 1M tokens
+            "gpt-5": {
+                "prompt": 5.0 / 1000000,  # estimated
+                "cached": 2.5 / 1000000,  # estimated
+                "completion": 15 / 1000000,  # estimated
             },
-            "gpt-4o-2024-05-13": {  # this ver does not support cached tokens
-                "prompt": 5.0 / 1000000,  # $5.00 per 1M tokens
-                "completion": 15 / 1000000,  # $15.00 per 1M tokens
+            "gpt-5-mini": {
+                "prompt": 2.0 / 1000000,  # estimated
+                "cached": 1.0 / 1000000,  # estimated
+                "completion": 8 / 1000000,  # estimated
             },
-            "gpt-4o-mini-2024-07-18": {
-                "prompt": 0.15 / 1000000,  # $0.15 per 1M tokens
-                "cached": 0.075 / 1000000,  # $0.075 per 1M tokens
-                "completion": 0.6 / 1000000,  # $0.60 per 1M tokens
-            },
-            "o1-2024-12-17": {
-                "prompt": 15 / 1000000,  # $15.00 per 1M tokens
-                "cached": 7.5 / 1000000,  # $7.50 per 1M tokens
-                "completion": 60 / 1000000,  # $60.00 per 1M tokens
-            },
-            "o1-preview-2024-09-12": {
-                "prompt": 15 / 1000000,  # $15.00 per 1M tokens
-                "cached": 7.5 / 1000000,  # $7.50 per 1M tokens
-                "completion": 60 / 1000000,  # $60.00 per 1M tokens
-            },
-            "o3-mini-2025-01-31": {
-                "prompt": 1.1 / 1000000,  # $1.10 per 1M tokens
-                "cached": 0.55 / 1000000,  # $0.55 per 1M tokens
-                "completion": 4.4 / 1000000,  # $4.40 per 1M tokens
+            "gpt-5-nano": {
+                "prompt": 0.5 / 1000000,  # estimated
+                "cached": 0.25 / 1000000,  # estimated
+                "completion": 2 / 1000000,  # estimated
             },
         }
 

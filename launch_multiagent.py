@@ -109,8 +109,6 @@ def main():
     print(f"✅ Created model: {model.model_id}")
     if model_name.startswith("gpt-5"):
         print(f"✅ GPT-5 configuration: reasoning_effort={reasoning_effort}, verbosity={verbosity}")
-    elif "claude" in model_name and budget_tokens:
-        print(f"✅ Claude Extended Thinking configuration: budget_tokens={budget_tokens}")
     
     # Pass experiment config to environment for RunExperimentTool
     if llm_config and 'run_experiment_tool' in llm_config:
