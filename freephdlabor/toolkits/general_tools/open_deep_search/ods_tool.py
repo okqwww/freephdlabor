@@ -21,7 +21,7 @@ class OpenDeepSearchTool(Tool):
     def __init__(
         self,
         model_name: Optional[str] = None,
-        reranker: str = "infinity",
+        reranker: str = "none",  # Disabled by default - no local embedding service required
         search_provider: Literal["serper", "searxng"] = "serper",
     ):
         super().__init__()

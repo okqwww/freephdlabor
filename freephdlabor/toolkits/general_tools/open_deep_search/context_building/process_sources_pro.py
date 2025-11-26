@@ -14,28 +14,32 @@ class Source:
 
 class SourceProcessor:
     def __init__(
-        self, 
+        self,
         top_results: int = 5,
         strategies: List[str] = ["no_extraction"],
         filter_content: bool = True,
-        reranker: str = "infinity"
+        reranker: str = "none"
     ):
         self.strategies = strategies
         self.filter_content = filter_content
         self.scraper = WebScraper(
-            strategies=self.strategies, 
+            strategies=self.strategies,
             filter_content=self.filter_content
         )
         self.top_results = top_results
         self.chunker = Chunker()
-        
+
         # Initialize the appropriate reranker
         if reranker.lower() == "jina":
             self.semantic_searcher = JinaReranker()
             print("Using Jina Reranker")
-        else:  # default to infinity
+        elif reranker.lower() == "infinity":
             self.semantic_searcher = InfinitySemanticSearcher()
             print("Using Infinity Reranker")
+        else:
+            # No reranker - just return content without semantic reranking
+            self.semantic_searcher = None
+            print("No Reranker - using raw content")
 
     async def process_sources(
         self, 
@@ -77,16 +81,20 @@ class SourceProcessor:
         try:
             # Split the HTML content into chunks
             documents = self.chunker.split_text(html)
-            
+
+            # If no reranker, just return joined chunks (limited to top_results)
+            if self.semantic_searcher is None:
+                return "\n\n".join(documents[:self.top_results])
+
             # Rerank the chunks based on the query
             reranked_content = self.semantic_searcher.get_reranked_documents(
                 query,
                 documents,
                 top_k=self.top_results
             )
-            
+
             return reranked_content
-        
+
         except Exception as e:
             print(f"Error in content processing: {e}")
             return ""

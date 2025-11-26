@@ -1,3 +1,9 @@
+> **ZYJ特别提醒**：HF_TOKEN不能用github上的，已经被封。在云端除了正常配环境还需要手动输入：
+> ```bash
+> apt-get update && apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra biber
+> ```
+> 以安装texlive。
+
 <p align="center">
   <img src="assets/logo.png" alt="freephdlabor logo" width="600">
 </p>
