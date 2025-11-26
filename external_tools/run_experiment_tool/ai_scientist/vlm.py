@@ -1,4 +1,5 @@
 import base64
+import os
 from typing import Any
 import re
 import json
@@ -9,17 +10,19 @@ from ai_scientist.utils.token_tracker import track_token_usage
 
 MAX_NUM_TOKENS = 4096
 
+# Available VLMs via NewAPI (newapi.tsingyuai.com/v1)
 AVAILABLE_VLMS = [
-    # GPT-5 models (multimodal support)
-    "gpt-5",
-    "gpt-5-mini",
+    # NewAPI supported VLM models
     "gpt-5-nano",
-    # GPT-4o models
+    "gpt-5-mini",
+    "gpt-5",
+    "gpt-4o",
+    "gpt-4o-mini",
+    # Legacy versions
     "gpt-4o-2024-05-13",
     "gpt-4o-2024-08-06",
     "gpt-4o-2024-11-20",
     "gpt-4o-mini-2024-07-18",
-    "o3-mini",
 ]
 
 
@@ -42,48 +45,31 @@ def encode_image_to_base64(image_path: str) -> str:
 
 @track_token_usage
 def make_llm_call(client, model, temperature, system_message, prompt):
-    if "gpt" in model:
-        return client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                *prompt,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=1,
-            stop=None,
-            seed=0,
-        )
-    elif "o1" in model or "o3" in model:
-        return client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "user", "content": system_message},
-                *prompt,
-            ],
-            temperature=1,
-            n=1,
-            seed=0,
-        )
-    else:
-        raise ValueError(f"Model {model} not supported.")
+    """Make LLM call via NewAPI."""
+    return client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            *prompt,
+        ],
+        temperature=temperature,
+        max_tokens=MAX_NUM_TOKENS,
+        n=1,
+    )
 
 
 @track_token_usage
 def make_vlm_call(client, model, temperature, system_message, prompt):
-    if "gpt" in model:
-        return client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                *prompt,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-        )
-    else:
-        raise ValueError(f"Model {model} not supported.")
+    """Make VLM call via NewAPI."""
+    return client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            *prompt,
+        ],
+        temperature=temperature,
+        max_tokens=MAX_NUM_TOKENS,
+    )
 
 
 def prepare_vlm_prompt(msg, image_paths, max_images):
@@ -160,19 +146,17 @@ def get_response_from_vlm(
     return content, new_msg_history
 
 
-def create_client(model: str) -> tuple[Any, str]:
-    """Create client for vision-language model."""
-    if model in [
-        "gpt-4o-2024-05-13",
-        "gpt-4o-2024-08-06",
-        "gpt-4o-2024-11-20",
-        "gpt-4o-mini-2024-07-18",
-        "o3-mini",
-    ]:
-        print(f"Using OpenAI API with model {model}.")
-        return openai.OpenAI(), model
-    else:
-        raise ValueError(f"Model {model} not supported.")
+def create_client(model: str = "gpt-4o") -> tuple[Any, str]:
+    """Create client for vision-language model via NewAPI."""
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+
+    # Use gpt-4o as default if model not specified or not supported
+    if model not in AVAILABLE_VLMS:
+        model = "gpt-4o"
+
+    print(f"Using NewAPI VLM ({api_base}) with model {model}.")
+    return openai.OpenAI(api_key=api_key, base_url=api_base), model
 
 
 def extract_json_between_markers(llm_output: str) -> dict | None:
@@ -222,73 +206,48 @@ def get_batch_responses_from_vlm(
     n_responses: int = 1,
     max_images: int = 200,
 ) -> tuple[list[str], list[list[dict[str, Any]]]]:
-    """Get multiple responses from vision-language model for the same input.
-
-    Args:
-        msg: Text message to send
-        image_paths: Path(s) to image file(s)
-        client: OpenAI client instance
-        model: Name of model to use
-        system_message: System prompt
-        print_debug: Whether to print debug info
-        msg_history: Previous message history
-        temperature: Sampling temperature
-        n_responses: Number of responses to generate
-
-    Returns:
-        Tuple of (list of response strings, list of message histories)
-    """
+    """Get multiple responses from VLM via NewAPI."""
     if msg_history is None:
         msg_history = []
 
-    if model in [
-        "gpt-4o-2024-05-13",
-        "gpt-4o-2024-08-06",
-        "gpt-4o-2024-11-20",
-        "gpt-4o-mini-2024-07-18",
-        "o3-mini",
-    ]:
-        # Convert single image path to list
-        if isinstance(image_paths, str):
-            image_paths = [image_paths]
+    # Convert single image path to list
+    if isinstance(image_paths, str):
+        image_paths = [image_paths]
 
-        # Create content list with text and images
-        content = [{"type": "text", "text": msg}]
-        for image_path in image_paths[:max_images]:
-            base64_image = encode_image_to_base64(image_path)
-            content.append(
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
-                        "detail": "low",
-                    },
-                }
-            )
-
-        # Construct message with all images
-        new_msg_history = msg_history + [{"role": "user", "content": content}]
-
-        # Get multiple responses
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=n_responses,
-            seed=0,
+    # Create content list with text and images
+    content = [{"type": "text", "text": msg}]
+    for image_path in image_paths[:max_images]:
+        base64_image = encode_image_to_base64(image_path)
+        content.append(
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}",
+                    "detail": "low",
+                },
+            }
         )
 
-        # Extract content from all responses
-        contents = [r.message.content for r in response.choices]
-        new_msg_histories = [
-            new_msg_history + [{"role": "assistant", "content": c}] for c in contents
-        ]
-    else:
-        raise ValueError(f"Model {model} not supported.")
+    # Construct message with all images
+    new_msg_history = msg_history + [{"role": "user", "content": content}]
+
+    # Get multiple responses via NewAPI
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            *new_msg_history,
+        ],
+        temperature=temperature,
+        max_tokens=MAX_NUM_TOKENS,
+        n=n_responses,
+    )
+
+    # Extract content from all responses
+    contents = [r.message.content for r in response.choices]
+    new_msg_histories = [
+        new_msg_history + [{"role": "assistant", "content": c}] for c in contents
+    ]
 
     if print_debug:
         # Just print the first response

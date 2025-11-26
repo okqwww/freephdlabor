@@ -75,7 +75,8 @@ def main():
     # Precedence: CLI arguments > Config file > Defaults
 
     # Start with hard-coded defaults
-    model_name = 'gpt-5'
+    # NewAPI supported models: gpt-5-nano, gpt-5-mini, gpt-5, gpt-4o
+    model_name = 'gpt-4o'
     reasoning_effort = 'high'
     verbosity = 'medium'
     budget_tokens = None
@@ -89,7 +90,7 @@ def main():
         print(f"📋 Loaded config file settings for main agents")
 
     # Override with CLI arguments if explicitly provided (different from argparse defaults)
-    if args.model != 'gpt-5':
+    if args.model != 'gpt-4o':
         model_name = args.model
         print(f"📋 CLI override: using model {model_name}")
     if args.reasoning_effort != 'high':
@@ -114,12 +115,12 @@ def main():
     # Pass experiment config to environment for RunExperimentTool
     if llm_config and 'run_experiment_tool' in llm_config:
         exp_config = llm_config['run_experiment_tool']
-        os.environ['RUN_EXPERIMENT_CODE_MODEL'] = exp_config.get('code_model', 'gpt-5')
-        os.environ['RUN_EXPERIMENT_FEEDBACK_MODEL'] = exp_config.get('feedback_model', 'gpt-5')
-        os.environ['RUN_EXPERIMENT_VLM_MODEL'] = exp_config.get('vlm_model', 'gpt-5')
-        os.environ['RUN_EXPERIMENT_REPORT_MODEL'] = exp_config.get('report_model', 'gpt-5')
+        os.environ['RUN_EXPERIMENT_CODE_MODEL'] = exp_config.get('code_model', 'gpt-4o')
+        os.environ['RUN_EXPERIMENT_FEEDBACK_MODEL'] = exp_config.get('feedback_model', 'gpt-4o')
+        os.environ['RUN_EXPERIMENT_VLM_MODEL'] = exp_config.get('vlm_model', 'gpt-4o')
+        os.environ['RUN_EXPERIMENT_REPORT_MODEL'] = exp_config.get('report_model', 'gpt-4o')
         os.environ['RUN_EXPERIMENT_REASONING_EFFORT'] = exp_config.get('reasoning_effort', 'high')
-        print(f"🔬 RunExperimentTool config: {exp_config.get('code_model', 'gpt-5')} with reasoning_effort={exp_config.get('reasoning_effort', 'high')}")
+        print(f"🔬 RunExperimentTool config: {exp_config.get('code_model', 'gpt-4o')} with reasoning_effort={exp_config.get('reasoning_effort', 'high')}")
 
     # Handle resume mode or create new workspace
     if args.resume:

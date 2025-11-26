@@ -4,24 +4,24 @@ import re
 from typing import Optional
 from smolagents import LiteLLMModel
 
-# Available models
+# Available models via NewAPI (newapi.tsingyuai.com/v1)
+# All models use OpenAI SDK with NewAPI endpoint
 AVAILABLE_MODELS = [
-    # OpenAI GPT-5 models (latest)
-    "gpt-5",
-    "gpt-5-mini", 
+    # NewAPI supported models (primary)
     "gpt-5-nano",
-    # OpenAI models
+    "gpt-5-mini",
+    "gpt-5",
     "gpt-4o",
-    "gpt-4.1-mini-2025-04-14",
-    # OpenAI reasoning models
-    "o4-mini-2025-04-16",
-    "o3-2025-04-16",
-    "o3-pro-2025-06-10",
-    # Claude models (Anthropic)
+    # Claude models via NewAPI
     "claude-opus-4-20250514",
     "claude-sonnet-4-20250514",
     "claude-sonnet-4-5",
     "claude-sonnet-4-5-20250929",
+    # Legacy models (may be supported via NewAPI fallback)
+    "gpt-4.1-mini-2025-04-14",
+    "o4-mini-2025-04-16",
+    "o3-2025-04-16",
+    "o3-pro-2025-06-10",
     # DeepSeek models
     "deepseek-chat",
     "deepseek-coder",
@@ -65,7 +65,10 @@ def extract_content_between_markers(response: str, start_marker: str, end_marker
         return None
 
 def create_model(model_name, reasoning_effort="medium", verbosity="medium", budget_tokens=None):
-    """Create a smolagents model based on the model name using API keys from environment variables.
+    """Create a smolagents model based on the model name using NewAPI.
+
+    All models are accessed via NewAPI (newapi.tsingyuai.com/v1) using OpenAI SDK.
+    Model fallback and retry are handled by NewAPI, not in code.
 
     Args:
         model_name: Name of the model to create
@@ -73,64 +76,53 @@ def create_model(model_name, reasoning_effort="medium", verbosity="medium", budg
         verbosity: GPT-5 verbosity level (low, medium, high)
         budget_tokens: Claude Extended Thinking token budget (min: 1024, recommended: 16k+)
     """
-    
+
     # Model context limits for fallback detection
-    # These will be passed as custom attributes to LiteLLMModel via **kwargs
     model_context_limits = {
-        # Claude models
+        # NewAPI supported models
+        "gpt-5-nano": 256000,
+        "gpt-5-mini": 256000,
+        "gpt-5": 256000,
+        "gpt-4o": 128000,
+
+        # Claude models via NewAPI
         "claude-3-5-sonnet-20241022": 200000,
         "claude-3-5-sonnet-20240620": 200000,
-        "claude-3-5-haiku-20241022": 200000,
-        "claude-3-opus-20240229": 200000,
-        "claude-3-sonnet-20240229": 200000,
-        "claude-3-haiku-20240307": 200000,
         "claude-sonnet-4-20250514": 200000,
         "claude-opus-4-20250514": 200000,
         "claude-sonnet-4-5": 200000,
         "claude-sonnet-4-5-20250929": 200000,
-        
-        # OpenAI GPT-5 models (context window: 256K input, 128K output including reasoning tokens)
-        "gpt-5": 256000,
-        "gpt-5-mini": 256000, 
-        "gpt-5-nano": 256000,
-        
-        # OpenAI models
-        "gpt-4o": 128000,
+
+        # Other models
         "gpt-4o-mini": 128000,
         "gpt-4-turbo": 128000,
-        "gpt-4": 8192,
-        "gpt-3.5-turbo": 16385,
         "o1-preview": 128000,
         "o1-mini": 128000,
         "o3-mini": 128000,
         "o3-2025-04-16": 200000,
-        "o4-mini": 128000,
-        "gpt-4.1-mini-2025-04-14": 128000,
         "o4-mini-2025-04-16": 128000,
-        
+
         # Gemini models
-        "gemini-1.5-pro": 1000000,
-        "gemini-1.5-flash": 1000000,
         "gemini-2.5-pro": 1000000,
         "gemini-2.5-flash": 1000000,
-        
+
         # DeepSeek models
         "deepseek-chat": 64000,
         "deepseek-coder": 64000,
-        "deepseek-reasoner": 64000,
-        
-        # Grok models
-        "grok-4-0709": 128000,
     }
-    
-    # Get context limit for this model (fallback for runtime detection)
-    context_limit = model_context_limits.get(model_name, 128000)  # Default 128k
-    
-    if "claude" in model_name:
-        # Claude models with optional Extended Thinking support
-        # Note: context_limit is NOT passed to API, it's just metadata
 
-        # Add Extended Thinking if budget_tokens is specified
+    # Get context limit for this model
+    context_limit = model_context_limits.get(model_name, 128000)  # Default 128k
+
+    # Get NewAPI configuration from environment
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+
+    # All models use NewAPI via OpenAI-compatible endpoint
+    # NewAPI handles model routing, fallback, and retry automatically
+
+    if "claude" in model_name:
+        # Claude models via NewAPI with optional Extended Thinking
         extra_kwargs = {}
         if budget_tokens is not None:
             extra_kwargs["thinking"] = {
@@ -139,64 +131,84 @@ def create_model(model_name, reasoning_effort="medium", verbosity="medium", budg
             }
 
         return LiteLLMModel(
-            model_id=f"anthropic/{model_name}",  # Explicit provider prefix for LiteLLM routing
-            api_key=os.environ["ANTHROPIC_API_KEY"],
+            model_id=model_name,  # NewAPI routes by model name
+            api_key=api_key,
+            api_base=api_base,
             **extra_kwargs
         )
     elif model_name.startswith("gpt-5"):
-        # GPT-5 models with reasoning_effort and verbosity support
-        # Global litellm.drop_params = True handles unsupported parameter filtering
+        # GPT-5 models with reasoning_effort and verbosity support via NewAPI
         extra_kwargs = {
-            "reasoning_effort": reasoning_effort,  # Required for GPT-5
-            "verbosity": verbosity,  # Required for GPT-5
+            "reasoning_effort": reasoning_effort,
+            "verbosity": verbosity,
         }
-        
+
         return LiteLLMModel(
             model=model_name,
             model_id=model_name,
-            api_key=os.environ["OPENAI_API_KEY"],
+            api_key=api_key,
+            api_base=api_base,
             **extra_kwargs
         )
     elif "gpt" in model_name or model_name.startswith(("o1-", "o3-", "o4-")):
+        # OpenAI models via NewAPI
         return LiteLLMModel(
             model=model_name,
             model_id=model_name,
-            api_key=os.environ["OPENAI_API_KEY"],
+            api_key=api_key,
+            api_base=api_base,
             context_limit=context_limit,
         )
     elif "deepseek" in model_name:
-        return LiteLLMModel(
-            model=model_name,
-            model_id=model_name,
-            api_key=os.environ["DEEPSEEK_API_KEY"],
-            api_base="https://api.deepseek.com",
-            context_limit=context_limit,
-        )
-    elif "llama" in model_name:
-        return LiteLLMModel(
-            model=f"openrouter/{model_name}",
-            model_id=model_name,
-            api_key=os.environ["OPENROUTER_API_KEY"],
-            context_limit=context_limit,
-        )
+        # DeepSeek models - try NewAPI first, fallback to native API if configured
+        deepseek_key = os.environ.get("DEEPSEEK_API_KEY")
+        if deepseek_key:
+            return LiteLLMModel(
+                model=model_name,
+                model_id=model_name,
+                api_key=deepseek_key,
+                api_base="https://api.deepseek.com",
+                context_limit=context_limit,
+            )
+        else:
+            # Use NewAPI for DeepSeek models
+            return LiteLLMModel(
+                model=model_name,
+                model_id=model_name,
+                api_key=api_key,
+                api_base=api_base,
+                context_limit=context_limit,
+            )
     elif "gemini" in model_name:
-        # Add thinking budget for Gemini 2.5 models
+        # Gemini models - try native API first, fallback to NewAPI
+        google_key = os.environ.get("GOOGLE_API_KEY")
         extra_kwargs = {"context_limit": context_limit}
         if "gemini-2.5-pro" in model_name:
             extra_kwargs["thinking_budget"] = 32768
-        
-        return LiteLLMModel(
-            model=f"gemini/{model_name}", 
-            model_id=f"gemini/{model_name}", 
-            api_key=os.environ["GOOGLE_API_KEY"],
-            **extra_kwargs
-        )
+
+        if google_key:
+            return LiteLLMModel(
+                model=f"gemini/{model_name}",
+                model_id=f"gemini/{model_name}",
+                api_key=google_key,
+                **extra_kwargs
+            )
+        else:
+            # Use NewAPI for Gemini models
+            return LiteLLMModel(
+                model=model_name,
+                model_id=model_name,
+                api_key=api_key,
+                api_base=api_base,
+                **extra_kwargs
+            )
     else:
-        # Default to OpenAI-compatible
+        # Default: all other models via NewAPI
         return LiteLLMModel(
             model=model_name,
             model_id=model_name,
-            api_key=os.environ.get("OPENAI_API_KEY", ""),
+            api_key=api_key,
+            api_base=api_base,
             context_limit=context_limit,
         )
 

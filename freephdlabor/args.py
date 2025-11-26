@@ -11,22 +11,26 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Create new workspace (uses default: gpt-5 with high reasoning effort)
+  # Create new workspace (uses default: gpt-4o)
   python launch_multiagent.py --task "Research transformer attention mechanisms"
 
+  # Use gpt-5 for more advanced reasoning
+  python launch_multiagent.py --task "Research topic" --model gpt-5
 
   # Resume from existing workspace
-  python launch_multiagent.py --resume results/freephdlabor_20250929_143022/ --model claude-sonnet-4-5
+  python launch_multiagent.py --resume results/freephdlabor_20250929_143022/
   python launch_multiagent.py --resume results/freephdlabor_20250929_143022/ --task "Continue writing the conclusion section"
+
+NewAPI Supported Models: gpt-5-nano, gpt-5-mini, gpt-5, gpt-4o
         """
     )
-    
+
     parser.add_argument(
         "--model",
         type=str,
         choices=AVAILABLE_MODELS,
-        default="gpt-5",
-        help="LLM model to use for all agents"
+        default="gpt-4o",
+        help="LLM model to use for all agents (NewAPI: gpt-5-nano, gpt-5-mini, gpt-5, gpt-4o)"
     )
 
     parser.add_argument(

@@ -40,7 +40,12 @@ ROOT = Path("knowledge_base")
 INDEX_DIR = Path("vector_store")
 INDEX_PATH = INDEX_DIR / "faiss.index"
 META_PATH = INDEX_DIR / "metadata.json"
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY_EMBEDDINGS"))
+# Use OPENAI_API_KEY_EMBEDDINGS if available, otherwise fall back to OPENAI_API_KEY
+# NewAPI supports embeddings via the same endpoint
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY_EMBEDDINGS") or os.getenv("OPENAI_API_KEY"),
+    base_url=os.getenv("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+)
 
 # ---------- helper: (mtime_ns, size) signature ----------
 
@@ -183,7 +188,10 @@ class RepoIndexer:
         self.root = Path(root)
         self.index_dir = index_dir or Path("vector_store")
         self.embed_model = embed_model
-        self.client = OpenAI(api_key=openai_api_key or os.getenv("OPENAI_API_KEY_EMBEDDINGS"))
+        self.client = OpenAI(
+            api_key=openai_api_key or os.getenv("OPENAI_API_KEY_EMBEDDINGS") or os.getenv("OPENAI_API_KEY"),
+            base_url=os.getenv("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+        )
         self._lock = threading.RLock()
         dim = len(embed_texts(["probe"], self.client, self.embed_model)[0])
         self.store = FaissStore(dim, self.index_dir, self.embed_model)
@@ -430,7 +438,7 @@ Finds shortest paths from a source node in nonnegative weighted graphs.''',
         watch=False,
         index_dir=index_dir,
         embed_model="text-embedding-3-small",
-        openai_api_key=os.getenv("OPENAI_API_KEY_EMBEDDINGS"),
+        openai_api_key=os.getenv("OPENAI_API_KEY_EMBEDDINGS") or os.getenv("OPENAI_API_KEY"),
     )
     print("[demo] Initial index built.\n")
 

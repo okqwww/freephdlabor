@@ -164,7 +164,7 @@ def visualizer(image_path: str, question: str | None = None) -> str:
     base64_image = encode_image(image_path)
 
     payload = {
-        "model": "gpt-4o",  # Use proven GPT-4o for reliable vision performance
+        "model": "gpt-4o",  # Use gpt-4o for reliable vision performance via NewAPI
         "messages": [
             {
                 "role": "user",
@@ -176,8 +176,10 @@ def visualizer(image_path: str, question: str | None = None) -> str:
         ],
         "max_tokens": 1000,
     }
+    # Use NewAPI endpoint
+    api_base = os.getenv('OPENAI_BASE_URL', 'https://newapi.tsingyuai.com/v1')
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"}
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    response = requests.post(f"{api_base}/chat/completions", headers=headers, json=payload)
     try:
         output = response.json()["choices"][0]["message"]["content"]
     except Exception:

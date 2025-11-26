@@ -3,8 +3,15 @@ import yaml
 import functools
 
 # Custom parameter filtering function for model-specific requirements
+# Note: NewAPI handles most parameter filtering automatically.
+# This decorator provides additional safety for edge cases.
 def filter_model_params(original_func):
-    """Decorator to filter unsupported parameters for different models."""
+    """Decorator to filter unsupported parameters for different models.
+
+    NewAPI (newapi.tsingyuai.com/v1) handles model routing and parameter
+    filtering automatically. This decorator provides additional safety
+    for edge cases and maintains compatibility with the codebase.
+    """
     @functools.wraps(original_func)
     def wrapper(*args, **kwargs):
         model = kwargs.get('model', args[0] if args else '')

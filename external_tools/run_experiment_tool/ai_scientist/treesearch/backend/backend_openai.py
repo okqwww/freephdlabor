@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 
 from .utils import FunctionSpec, OutputType, opt_messages_to_list, backoff_create
@@ -21,8 +22,12 @@ OPENAI_TIMEOUT_EXCEPTIONS = (
 
 @once
 def _setup_openai_client():
+    """Setup OpenAI client configured for NewAPI."""
     global _client
-    _client = openai.OpenAI(max_retries=0)
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+    _client = openai.OpenAI(api_key=api_key, base_url=api_base, max_retries=0)
+    print(f"[cyan]OpenAI client configured for NewAPI: {api_base}[/cyan]")
 
 
 def query(

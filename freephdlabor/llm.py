@@ -4,42 +4,34 @@ import re
 import base64
 from typing import List, Union, Optional, Dict, Any
 
-import anthropic
 import backoff
 import openai
 
 MAX_NUM_TOKENS = 4096
 
+# Available LLMs via NewAPI (newapi.tsingyuai.com/v1)
+# All models use OpenAI SDK with NewAPI endpoint
 AVAILABLE_LLMS = [
+    # NewAPI supported models (primary)
+    "gpt-5-nano",
+    "gpt-5-mini",
+    "gpt-5",
+    "gpt-4o",
+    "gpt-4o-mini",
+    # Claude models via NewAPI
     "claude-3-5-sonnet-20240620",
     "claude-3-5-sonnet-20241022",
-    "claude-3-7-sonnet-20250219",
-    "gpt-4o-mini-2024-07-18",
-    "gpt-4o-mini",
+    "claude-sonnet-4-5",
+    # Legacy OpenAI models
     "gpt-4o-2024-05-13",
     "gpt-4o-2024-08-06",
     "o1-preview-2024-09-12",
     "o1-mini-2024-09-12",
     "o1-2024-12-17",
     "o3-mini-2025-01-31",
-    "o3-2025-01-31",
-    "o4-mini-2025-04-16",
+    # DeepSeek models
     "deepseek-coder",
     "deepseek-reasoner",
-    "deepseek/deepseek-r1:nitro",
-    "llama3.1-405b",
-    # Anthropic Claude models via Amazon Bedrock
-    "bedrock/anthropic.claude-3-sonnet-20240229-v1:0",
-    "bedrock/anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0",
-    "bedrock/anthropic.claude-3-haiku-20240307-v1:0",
-    "bedrock/anthropic.claude-3-opus-20240229-v1:0",
-    # Anthropic Claude models Vertex AI
-    "vertex_ai/claude-3-opus@20240229",
-    "vertex_ai/claude-3-5-sonnet@20240620",
-    "vertex_ai/claude-3-5-sonnet-v2@20241022",
-    "vertex_ai/claude-3-sonnet@20240229",
-    "vertex_ai/claude-3-haiku@20240307",
 ]
 
 
@@ -55,97 +47,27 @@ def get_batch_responses_from_llm(
         temperature=0.75,
         n_responses=1,
 ):
+    """Get multiple responses from LLM via NewAPI for ensembling."""
     if msg_history is None:
         msg_history = []
 
-    if model in [
-        "gpt-4o-2024-05-13",
-        "gpt-4o-mini-2024-07-18",
-        "gpt-4o-2024-08-06",
-    ]:
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=n_responses,
-            stop=None,
-            seed=0,
-        )
-        content = [r.message.content for r in response.choices]
-        new_msg_history = [
-            new_msg_history + [{"role": "assistant", "content": c}] for c in content
-        ]
-    elif model == "deepseek-coder":
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model="deepseek-coder",
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=n_responses,
-            stop=None,
-        )
-        content = [r.message.content for r in response.choices]
-        new_msg_history = [
-            new_msg_history + [{"role": "assistant", "content": c}] for c in content
-        ]
-    elif model == "deepseek-reasoner":
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model="deepseek-reasoner",
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=n_responses,
-            stop=None,
-        )
-        reasoning_content = [r.message.reasoning_content for r in response.choices]
-        content = [r.message.content for r in response.choices]
-        new_msg_history = [
-            new_msg_history + [{"role": "assistant", "content": c}] for c in content
-        ]
-    elif model == "llama-3-1-405b-instruct":
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model="meta-llama/llama-3.1-405b-instruct",
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=n_responses,
-            stop=None,
-        )
-        content = [r.message.content for r in response.choices]
-        new_msg_history = [
-            new_msg_history + [{"role": "assistant", "content": c}] for c in content
-        ]
-    else:
-        content, new_msg_history = [], []
-        for _ in range(n_responses):
-            c, hist = get_response_from_llm(
-                msg,
-                client,
-                model,
-                system_message,
-                print_debug=False,
-                msg_history=None,
-                # temperature=temperature,
-            )
-            content.append(c)
-            new_msg_history.append(hist)
+    new_msg_history = msg_history + [{"role": "user", "content": msg}]
+
+    # Use OpenAI SDK format for all models via NewAPI
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            *new_msg_history,
+        ],
+        temperature=temperature,
+        max_tokens=MAX_NUM_TOKENS,
+        n=n_responses,
+    )
+    content = [r.message.content for r in response.choices]
+    new_msg_history = [
+        new_msg_history + [{"role": "assistant", "content": c}] for c in content
+    ]
 
     if print_debug:
         # Just print the first one.
@@ -170,142 +92,29 @@ def get_response_from_llm(
         msg_history=None,
         temperature=0.75,
 ):
+    """Get response from LLM via NewAPI.
+
+    All models use OpenAI SDK with NewAPI endpoint.
+    Model-specific parameter handling is done by NewAPI.
+    """
     if msg_history is None:
         msg_history = []
 
-    if "claude" in model:
-        new_msg_history = msg_history + [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": msg,
-                    }
-                ],
-            }
-        ]
-        response = client.messages.create(
-            model=model,
-            max_tokens=MAX_NUM_TOKENS,
-            temperature=temperature,
-            system=system_message,
-            messages=new_msg_history,
-        )
-        content = response.content[0].text
-        new_msg_history = new_msg_history + [
-            {
-                "role": "assistant",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": content,
-                    }
-                ],
-            }
-        ]
-    elif model in [
-        "gpt-4o-2024-05-13",
-        "gpt-4o-mini-2024-07-18",
-        "gpt-4o-2024-08-06",
-    ]:
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=1,
-            stop=None,
-            seed=0,
-        )
-        content = response.choices[0].message.content
-        new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
-    elif model in ["o1-preview-2024-09-12", "o1-mini-2024-09-12", "o1-2024-12-17", "o3-mini-2025-01-31",]:
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        print("temp?")
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "user", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=1,
-            max_completion_tokens=MAX_NUM_TOKENS,
-            n=1,
-            #stop=None,
-            seed=0,
-        )
-        content = response.choices[0].message.content
-        new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
-    elif model == "deepseek-coder":
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model="deepseek-coder",
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=1,
-            stop=None,
-        )
-        content = response.choices[0].message.content
-        new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
-    elif model in ["deepseek-reasoner", "deepseek/deepseek-r1:nitro"]:
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=1,
-            stop=None,
-        )
-        # reasoning_content = response.choices[0].message.reasoning_content
-        # print(f"@@@\n reasoning_content is {reasoning_content}")
-        content = response.choices[0].message.content
-        print(f"@@@\n content is {content}")
-        new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
-    elif model in ["meta-llama/llama-3.1-405b-instruct", "llama-3-1-405b-instruct"]:
-        new_msg_history = msg_history + [{"role": "user", "content": msg}]
-        response = client.chat.completions.create(
-            model="meta-llama/llama-3.1-405b-instruct",
-            messages=[
-                {"role": "system", "content": system_message},
-                *new_msg_history,
-            ],
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=1,
-            stop=None,
-        )
-        content = response.choices[0].message.content
-        new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
-    # elif model == "deepseek/deepseek-reasoner":
-    #     new_msg_history = msg_history + [{"role": "user", "content": msg}]
-    #     response = client.chat.completions.create(
-    #         model=model,
-    #         messages=[
-    #             {"role": "system", "content": system_message},
-    #             *new_msg_history,
-    #         ],
-    #         temperature=temperature,
-    #         max_tokens=MAX_NUM_TOKENS,
-    #         n=1,
-    #         stop=None,
-    #     )
-    #     content = response.choices[0].message.content
-    #     new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
-    else:
-        raise ValueError(f"Model {model} not supported.")
+    new_msg_history = msg_history + [{"role": "user", "content": msg}]
+
+    # Use OpenAI SDK format for all models via NewAPI
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_message},
+            *new_msg_history,
+        ],
+        temperature=temperature,
+        max_tokens=MAX_NUM_TOKENS,
+        n=1,
+    )
+    content = response.choices[0].message.content
+    new_msg_history = new_msg_history + [{"role": "assistant", "content": content}]
 
     if print_debug:
         print()
@@ -414,27 +223,27 @@ def get_response_from_vlm(
     temperature: float = 0.75,
 ) -> tuple[str, List[Dict]]:
     """
-    Get response from Vision-Language Model with image inputs.
-    
+    Get response from Vision-Language Model with image inputs via NewAPI.
+
     Args:
         prompt: Text prompt for the VLM
         images: List of image file paths
-        client: OpenAI client instance
-        model: Model name (should be vision-capable like gpt-4o)
+        client: OpenAI client instance (configured for NewAPI)
+        model: Model name (e.g., gpt-4o)
         system_message: System message for the conversation
         print_debug: Whether to print debug information
         msg_history: Previous conversation history
         temperature: Sampling temperature
-        
+
     Returns:
         Tuple of (response_content, updated_message_history)
     """
     if msg_history is None:
         msg_history = []
-    
+
     # Prepare message content with text and images
     content = [{"type": "text", "text": prompt}]
-    
+
     # Add images to content
     for image_path in images:
         try:
@@ -448,34 +257,29 @@ def get_response_from_vlm(
         except Exception as e:
             print(f"Warning: Failed to encode image {image_path}: {e}")
             continue
-    
+
     # Build message history
     new_msg_history = msg_history + [{"role": "user", "content": content}]
-    
+
     # Prepare messages for API call
     messages = []
     if system_message:
         messages.append({"role": "system", "content": system_message})
     messages.extend(new_msg_history)
-    
-    # Make API call (currently only supports OpenAI-compatible VLMs)
-    if "gpt-4o" in model or "gpt-4-vision" in model:
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
-            n=1,
-            seed=0,
-        )
-        content_response = response.choices[0].message.content
-        
-        # Update message history
-        new_msg_history = new_msg_history + [{"role": "assistant", "content": content_response}]
-        
-    else:
-        raise ValueError(f"VLM model {model} not supported. Currently only supports GPT-4 Vision models.")
-    
+
+    # Make API call via NewAPI (all models use OpenAI SDK format)
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=temperature,
+        max_tokens=MAX_NUM_TOKENS,
+        n=1,
+    )
+    content_response = response.choices[0].message.content
+
+    # Update message history
+    new_msg_history = new_msg_history + [{"role": "assistant", "content": content_response}]
+
     if print_debug:
         print()
         print("*" * 20 + " VLM START " + "*" * 20)
@@ -484,64 +288,40 @@ def get_response_from_vlm(
         print(content_response)
         print("*" * 21 + " VLM END " + "*" * 21)
         print()
-    
+
     return content_response, new_msg_history
 
 
-def create_vlm_client(model: str = "gpt-4o-2024-05-13"):
+def create_vlm_client(model: str = "gpt-4o"):
     """
-    Create a VLM client for vision tasks.
-    
+    Create a VLM client for vision tasks via NewAPI.
+
     Args:
-        model: VLM model name (defaults to GPT-4o)
-        
+        model: VLM model name (defaults to gpt-4o)
+
     Returns:
         Tuple of (client, model_name)
     """
-    if "gpt-4o" in model or "gpt-4-vision" in model:
-        print(f"Using OpenAI VLM API with model {model}.")
-        return openai.OpenAI(), model
-    else:
-        # Default to GPT-4o if unsupported model
-        print(f"Model {model} not supported for VLM. Defaulting to gpt-4o-2024-05-13.")
-        return openai.OpenAI(), "gpt-4o-2024-05-13"
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+
+    # Use gpt-4o as default VLM model via NewAPI
+    if "gpt" not in model:
+        model = "gpt-4o"
+
+    print(f"Using NewAPI VLM ({api_base}) with model {model}.")
+    return openai.OpenAI(api_key=api_key, base_url=api_base), model
 
 
 def create_client(model):
-    if model.startswith("claude-"):
-        print(f"Using Anthropic API with model {model}.")
-        return anthropic.Anthropic(), model
-    elif model.startswith("bedrock") and "claude" in model:
-        client_model = model.split("/")[-1]
-        print(f"Using Amazon Bedrock with model {client_model}.")
-        return anthropic.AnthropicBedrock(), client_model
-    elif model.startswith("vertex_ai") and "claude" in model:
-        client_model = model.split("/")[-1]
-        print(f"Using Vertex AI with model {client_model}.")
-        return anthropic.AnthropicVertex(), client_model
-    elif 'gpt' in model:
-        print(f"Using OpenAI API with model {model}.")
-        return openai.OpenAI(), model
-    elif model in ["o1-preview-2024-09-12", "o1-mini-2024-09-12", "o1-2024-12-17", "o3-mini-2025-01-31",]:
-        print(f"Using OpenAI API with model {model}.")
-        return openai.OpenAI(), model
-    elif model in ["deepseek-coder", "deepseek-reasoner"]:
-        print(f"Using OpenAI API with {model}.")
-        return openai.OpenAI(
-            api_key=os.environ["DEEPSEEK_API_KEY"],
-            base_url="https://api.deepseek.com"
-        ), model
-    elif model == "llama3.1-405b":
-        print(f"Using OpenAI API with {model}.")
-        return openai.OpenAI(
-            api_key=os.environ["OPENROUTER_API_KEY"],
-            base_url="https://openrouter.ai/api/v1"
-        ), "meta-llama/llama-3.1-405b-instruct"
-    elif model == "deepseek/deepseek-r1:nitro":
-        print("Using OpenRouter API with DeepSeek Reasoner.")
-        return openai.OpenAI(
-            api_key=os.environ["OPENROUTER_API_KEY"],
-            base_url="https://openrouter.ai/api/v1"
-        ), "deepseek/deepseek-r1:nitro"
-    else:
-        raise ValueError(f"Model {model} not supported.")
+    """Create an OpenAI client configured for NewAPI.
+
+    All models are accessed via NewAPI (newapi.tsingyuai.com/v1) using OpenAI SDK.
+    Model fallback and retry are handled by NewAPI, not in code.
+    """
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
+
+    # All models use NewAPI with OpenAI SDK
+    print(f"Using NewAPI ({api_base}) with model {model}.")
+    return openai.OpenAI(api_key=api_key, base_url=api_base), model
