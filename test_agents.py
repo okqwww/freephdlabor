@@ -80,7 +80,7 @@ def test_litellm_model():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o-mini",
+            model_id="gpt-4o",
             api_key=api_key,
             api_base=api_base
         )
@@ -134,7 +134,7 @@ def test_ideation_agent():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o-mini",
+            model_id="gpt-4o",
             api_key=api_key,
             api_base=api_base
         )
@@ -146,8 +146,15 @@ def test_ideation_agent():
             )
             print_success("IdeationAgent initialized")
 
-            # Check tools
-            tool_names = [t.name for t in agent.tools]
+            # Check tools - handle both Tool objects and string names
+            tool_names = []
+            for t in agent.tools:
+                if isinstance(t, str):
+                    tool_names.append(t)
+                elif hasattr(t, 'name'):
+                    tool_names.append(t.name)
+                else:
+                    tool_names.append(str(t))
             print_info(f"Available tools: {tool_names}")
 
             expected_tools = ["web_search", "generate_idea", "refine_idea"]
@@ -179,7 +186,7 @@ def test_experimentation_agent():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o-mini",
+            model_id="gpt-4o",
             api_key=api_key,
             api_base=api_base
         )
@@ -191,8 +198,15 @@ def test_experimentation_agent():
             )
             print_success("ExperimentationAgent initialized")
 
-            # Check tools
-            tool_names = [t.name for t in agent.tools]
+            # Check tools - handle both Tool objects and string names
+            tool_names = []
+            for t in agent.tools:
+                if isinstance(t, str):
+                    tool_names.append(t)
+                elif hasattr(t, 'name'):
+                    tool_names.append(t.name)
+                else:
+                    tool_names.append(str(t))
             print_info(f"Available tools: {tool_names}")
 
             # Check for critical tool
@@ -231,7 +245,7 @@ def test_writeup_agent():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o-mini",
+            model_id="gpt-4o",
             api_key=api_key,
             api_base=api_base
         )
@@ -243,8 +257,15 @@ def test_writeup_agent():
             )
             print_success("WriteupAgent initialized")
 
-            # Check tools
-            tool_names = [t.name for t in agent.tools]
+            # Check tools - handle both Tool objects and string names
+            tool_names = []
+            for t in agent.tools:
+                if isinstance(t, str):
+                    tool_names.append(t)
+                elif hasattr(t, 'name'):
+                    tool_names.append(t.name)
+                else:
+                    tool_names.append(str(t))
             print_info(f"Available tools: {tool_names}")
 
             return True
@@ -271,7 +292,7 @@ def test_manager_agent():
         from freephdlabor.utils import create_model, initialize_agent_system
         from freephdlabor.interpreters import WorkspacePythonExecutor
 
-        model = create_model("gpt-4o-mini", "medium", "low", None)
+        model = create_model("gpt-4o", "medium", "low", None)
         print_success(f"Created model: {model.model_id}")
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -292,9 +313,16 @@ def test_manager_agent():
             )
             print_success("ManagerAgent initialized")
 
-            # Check managed agents
+            # Check managed agents - handle both Agent objects and string names
             if hasattr(manager, 'managed_agents') and manager.managed_agents:
-                agent_names = [a.name for a in manager.managed_agents]
+                agent_names = []
+                for a in manager.managed_agents:
+                    if isinstance(a, str):
+                        agent_names.append(a)
+                    elif hasattr(a, 'name'):
+                        agent_names.append(a.name)
+                    else:
+                        agent_names.append(str(a))
                 print_info(f"Managed agents: {agent_names}")
                 print_success(f"Found {len(agent_names)} managed agents")
             else:
@@ -366,7 +394,7 @@ def test_agent_simple_task(agent_name="ideation"):
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o-mini",
+            model_id="gpt-4o",
             api_key=api_key,
             api_base=api_base
         )
@@ -406,7 +434,7 @@ def test_workspace_structure():
         from freephdlabor.utils import initialize_agent_system, create_model
         from freephdlabor.interpreters import WorkspacePythonExecutor
 
-        model = create_model("gpt-4o-mini", "medium", "low", None)
+        model = create_model("gpt-4o", "medium", "low", None)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             essential_imports = ["json", "os"]
