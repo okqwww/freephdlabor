@@ -337,9 +337,9 @@ def test_agent_file_tools():
             else:
                 print_warning("SeeFile returned unexpected content")
 
-            # Test ModifyFile
+            # Test ModifyFile (requires: filename, start_line, end_line, new_content)
             modify_tool = ModifyFile(working_dir=tmpdir)
-            result = modify_tool.forward("test.txt", "Hello", "Hi")
+            result = modify_tool.forward("test.txt", 1, 1, "Hi, World!")
             print_success("ModifyFile tool works")
 
             return True

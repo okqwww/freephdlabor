@@ -2,7 +2,7 @@ from typing import Optional, Dict, Any, Literal
 from .serp_search.serp_search import create_search_api, SearchAPI
 from .context_building.process_sources_pro import SourceProcessor
 from .context_building.build_context import build_context
-from litellm import completion, utils
+from litellm import completion
 from dotenv import load_dotenv
 import os
 from .prompts import SEARCH_SYSTEM_PROMPT
@@ -75,10 +75,8 @@ class OpenDeepSearchAgent:
         self.top_p = top_p
         self.system_prompt = system_prompt
 
-        # Configure LiteLLM with OpenAI base URL if provided
-        openai_base_url = os.environ.get("OPENAI_BASE_URL")
-        if openai_base_url:
-            utils.set_provider_config("openai", {"base_url": openai_base_url})
+        # Note: OpenAI base URL is configured via OPENAI_BASE_URL environment variable
+        # LiteLLM will automatically use this when making API calls
 
     async def search_and_build_context(
         self,

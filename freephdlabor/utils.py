@@ -103,14 +103,6 @@ def create_model(model_name, reasoning_effort="medium", verbosity="medium", budg
             context_limit=context_limit,
         )
 
-from freephdlabor.agents.manager_agent import ManagerAgent
-from freephdlabor.agents.ideation_agent import IdeationAgent
-from freephdlabor.agents.experimentation_agent import ExperimentationAgent
-from freephdlabor.agents.writeup_agent import WriteupAgent
-from freephdlabor.interpreters import WorkspacePythonExecutor
-from freephdlabor.agents.reviewer_agent import ReviewerAgent
-from freephdlabor.agents.proofreading_agent import ProofreadingAgent
-
 def initialize_agent_system(model, workspace_dir, workspace_interpreter, essential_imports, enable_planning=False, planning_interval=3, interrupt_callback=None):
     """
     Initialize the complete multi-agent system with consistent configuration.
@@ -131,6 +123,17 @@ def initialize_agent_system(model, workspace_dir, workspace_interpreter, essenti
         ManagerAgent: Configured with pre-initialized specialist agents
     """
     print("🔧 Initializing multi-agent system...")
+
+    # Lazy imports to avoid circular dependency
+    # These imports are done inside the function rather than at module level
+    # because agents import from toolkits, which may import from utils
+    from freephdlabor.agents.manager_agent import ManagerAgent
+    from freephdlabor.agents.ideation_agent import IdeationAgent
+    from freephdlabor.agents.experimentation_agent import ExperimentationAgent
+    from freephdlabor.agents.writeup_agent import WriteupAgent
+    from freephdlabor.agents.reviewer_agent import ReviewerAgent
+    from freephdlabor.agents.proofreading_agent import ProofreadingAgent
+    from freephdlabor.agents.resource_preparation_agent import ResourcePreparationAgent
 
     # Determine planning configuration
     planning_config = {}
@@ -162,8 +165,7 @@ def initialize_agent_system(model, workspace_dir, workspace_interpreter, essenti
     )
     print("✅ ExperimentationAgent initialized")
 
-    # Initialize ResourcePreparationAgent (NEW - handles heavy preparatory work)
-    from freephdlabor.agents.resource_preparation_agent import ResourcePreparationAgent
+    # Initialize ResourcePreparationAgent (handles heavy preparatory work)
     resource_preparation_agent = ResourcePreparationAgent(
         model=model,
         workspace_dir=workspace_dir,
