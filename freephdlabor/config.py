@@ -5,7 +5,7 @@ import functools
 # Custom parameter filtering function for model-specific requirements
 # Note: NewAPI handles most parameter filtering automatically.
 # This decorator provides additional safety for edge cases.
-# Only NewAPI supported models: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
+# Only NewAPI supported models: gpt-5, gpt-5, gpt-5-mini, gpt-5-nano
 def filter_model_params(original_func):
     """Decorator to filter unsupported parameters for different models.
 
@@ -13,7 +13,7 @@ def filter_model_params(original_func):
     filtering automatically. This decorator provides additional safety
     for edge cases and maintains compatibility with the codebase.
 
-    Only supports: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
+    Only supports: gpt-5, gpt-5, gpt-5-mini, gpt-5-nano
     """
     @functools.wraps(original_func)
     def wrapper(*args, **kwargs):
@@ -39,7 +39,7 @@ def filter_model_params(original_func):
             return original_func(*args, **filtered_kwargs)
 
         else:
-            # gpt-4o and other models use original parameters
+            # gpt-5 and other models use original parameters
             return original_func(*args, **kwargs)
     return wrapper
 

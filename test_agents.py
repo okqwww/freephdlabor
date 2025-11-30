@@ -80,7 +80,7 @@ def test_litellm_model():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -134,7 +134,7 @@ def test_ideation_agent():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -186,7 +186,7 @@ def test_experimentation_agent():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -245,7 +245,7 @@ def test_writeup_agent():
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -292,7 +292,7 @@ def test_manager_agent():
         from freephdlabor.utils import create_model, initialize_agent_system
         from freephdlabor.interpreters import WorkspacePythonExecutor
 
-        model = create_model("gpt-4o", "medium", "low", None)
+        model = create_model("gpt-5", "medium", "low", None)
         print_success(f"Created model: {model.model_id}")
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -394,7 +394,7 @@ def test_agent_simple_task(agent_name="ideation"):
         from smolagents import LiteLLMModel
 
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -434,7 +434,7 @@ def test_workspace_structure():
         from freephdlabor.utils import initialize_agent_system, create_model
         from freephdlabor.interpreters import WorkspacePythonExecutor
 
-        model = create_model("gpt-4o", "medium", "low", None)
+        model = create_model("gpt-5", "medium", "low", None)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             essential_imports = ["json", "os"]

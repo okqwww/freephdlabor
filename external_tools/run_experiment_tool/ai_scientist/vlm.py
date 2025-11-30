@@ -16,7 +16,7 @@ AVAILABLE_VLMS = [
     "gpt-5-nano",
     "gpt-5-mini",
     "gpt-5",
-    "gpt-4o",
+    "gpt-5",
 ]
 
 
@@ -140,14 +140,14 @@ def get_response_from_vlm(
     return content, new_msg_history
 
 
-def create_client(model: str = "gpt-4o") -> tuple[Any, str]:
+def create_client(model: str = "gpt-5") -> tuple[Any, str]:
     """Create client for vision-language model via NewAPI."""
     api_key = os.environ.get("OPENAI_API_KEY", "")
     api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
 
-    # Use gpt-4o as default if model not specified or not supported
+    # Use gpt-5 as default if model not specified or not supported
     if model not in AVAILABLE_VLMS:
-        model = "gpt-4o"
+        model = "gpt-5"
 
     print(f"Using NewAPI VLM ({api_base}) with model {model}.")
     return openai.OpenAI(api_key=api_key, base_url=api_base), model

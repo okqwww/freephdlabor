@@ -74,7 +74,7 @@ def test_llm_response():
         LaTeX code wrapped in ```latex``` markers."""
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5",
             messages=[
                 {"role": "system", "content": "You are a scientific paper writer."},
                 {"role": "user", "content": prompt}
@@ -313,7 +313,7 @@ def test_vlm_figure_analysis():
         client = openai.OpenAI(api_key=api_key, base_url=api_base)
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5",
             messages=[
                 {
                     "role": "user",
@@ -431,7 +431,7 @@ Generate ONLY the LaTeX code for a Results section (about 5-6 sentences) that de
 Wrap your response in ```latex``` markers."""
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5",
                 messages=[
                     {"role": "system", "content": "You are an academic paper writer. Generate only LaTeX code."},
                     {"role": "user", "content": prompt}

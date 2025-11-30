@@ -266,7 +266,7 @@ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             client = openai.OpenAI(api_key=api_key, base_url=api_base)
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5",
                 messages=[{"role": "user", "content": "Say 'OK' only."}],
                 max_tokens=10
             )
@@ -382,7 +382,7 @@ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             from freephdlabor.utils import create_model, initialize_agent_system
             from freephdlabor.interpreters import WorkspacePythonExecutor
 
-            model = create_model("gpt-4o", "medium", "low", None)
+            model = create_model("gpt-5", "medium", "low", None)
             print_success("Model created")
 
             with tempfile.TemporaryDirectory() as tmpdir:
@@ -500,7 +500,7 @@ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             from smolagents import LiteLLMModel
 
             api_base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
-            model = LiteLLMModel(model_id="gpt-4o", api_key=api_key, api_base=api_base)
+            model = LiteLLMModel(model_id="gpt-5", api_key=api_key, api_base=api_base)
 
             tool = IdeaStandardizationTool(model=model)
 
@@ -558,7 +558,7 @@ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             from smolagents import LiteLLMModel
 
             api_base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
-            model = LiteLLMModel(model_id="gpt-4o", api_key=api_key, api_base=api_base)
+            model = LiteLLMModel(model_id="gpt-5", api_key=api_key, api_base=api_base)
 
             # Minimal test idea
             test_idea = {
@@ -578,10 +578,10 @@ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
                 tool = RunExperimentTool(workspace_dir=tmpdir)
                 result = tool.forward(
                     idea_json=standardized,
-                    code_model="gpt-4o",
-                    feedback_model="gpt-4o",
-                    vlm_model="gpt-4o",
-                    report_model="gpt-4o",
+                    code_model="gpt-5",
+                    feedback_model="gpt-5",
+                    vlm_model="gpt-5",
+                    report_model="gpt-5",
                     end_stage=1  # Only stage 1 for speed
                 )
 
@@ -658,7 +658,7 @@ Test
             img_b64 = base64.b64encode(buffer.getvalue()).decode()
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5",
                 messages=[{
                     "role": "user",
                     "content": [

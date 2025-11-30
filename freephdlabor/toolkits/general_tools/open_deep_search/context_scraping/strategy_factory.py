@@ -22,7 +22,7 @@ class StrategyFactory:
     ) -> LLMExtractionStrategy:
         return LLMExtractionStrategy(
             input_format=input_format,
-            provider="openai/gpt-4o",  # Uses NewAPI via OpenAI SDK
+            provider="openai/gpt-5",  # Uses NewAPI via OpenAI SDK
             api_token=os.getenv("OPENAI_API_KEY"),
             instruction=instruction
         )

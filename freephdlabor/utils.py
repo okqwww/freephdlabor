@@ -10,7 +10,7 @@ AVAILABLE_MODELS = [
     "gpt-5-nano",
     "gpt-5-mini",
     "gpt-5",
-    "gpt-4o",
+    "gpt-5",
 ]
 
 
@@ -49,10 +49,10 @@ def create_model(model_name, reasoning_effort="medium", verbosity="medium", budg
     """Create a smolagents model based on the model name using NewAPI.
 
     All models are accessed via NewAPI (newapi.tsingyuai.com/v1) using OpenAI SDK.
-    Only gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano are supported.
+    Only gpt-5, gpt-5, gpt-5-mini, gpt-5-nano are supported.
 
     Args:
-        model_name: Name of the model to create (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano)
+        model_name: Name of the model to create (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano)
         reasoning_effort: GPT-5 reasoning effort level (minimal, low, medium, high)
         verbosity: GPT-5 verbosity level (low, medium, high)
         budget_tokens: Unused, kept for API compatibility
@@ -63,13 +63,13 @@ def create_model(model_name, reasoning_effort="medium", verbosity="medium", budg
         "gpt-5-nano": 256000,
         "gpt-5-mini": 256000,
         "gpt-5": 256000,
-        "gpt-4o": 128000,
+        "gpt-5": 128000,
     }
 
     # Validate model name - only allow supported models
     if model_name not in model_context_limits:
-        print(f"⚠️ Model '{model_name}' not supported by NewAPI. Falling back to gpt-4o.")
-        model_name = "gpt-4o"
+        print(f"⚠️ Model '{model_name}' not supported by NewAPI. Falling back to gpt-5.")
+        model_name = "gpt-5"
 
     # Get context limit for this model
     context_limit = model_context_limits.get(model_name, 128000)
@@ -94,7 +94,7 @@ def create_model(model_name, reasoning_effort="medium", verbosity="medium", budg
             **extra_kwargs
         )
     else:
-        # gpt-4o via NewAPI
+        # gpt-5 via NewAPI
         return LiteLLMModel(
             model=model_name,
             model_id=model_name,

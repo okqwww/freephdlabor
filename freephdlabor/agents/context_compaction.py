@@ -20,13 +20,13 @@ from smolagents.monitoring import Timing
 
 
 # Model context limits mapping (input tokens)
-# Only NewAPI supported models: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
+# Only NewAPI supported models: gpt-5, gpt-5, gpt-5-mini, gpt-5-nano
 MODEL_CONTEXT_LIMITS = {
     # NewAPI supported models
     "gpt-5": 256000,
     "gpt-5-mini": 256000,
     "gpt-5-nano": 256000,
-    "gpt-4o": 128000,
+    "gpt-5": 128000,
 
     # Default fallback
     "default": 128000

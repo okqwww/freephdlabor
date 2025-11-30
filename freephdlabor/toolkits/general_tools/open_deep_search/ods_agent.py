@@ -70,7 +70,7 @@ class OpenDeepSearchAgent:
         self.source_processor = SourceProcessor(**source_processor_config)
 
         # Initialize LLM settings
-        self.model = model if model is not None else os.getenv("LITELLM_SEARCH_MODEL_ID", os.getenv("LITELLM_MODEL_ID", "gpt-4o"))
+        self.model = model if model is not None else os.getenv("LITELLM_SEARCH_MODEL_ID", os.getenv("LITELLM_MODEL_ID", "gpt-5"))
         self.temperature = temperature
         self.top_p = top_p
         self.system_prompt = system_prompt

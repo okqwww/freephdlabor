@@ -16,12 +16,12 @@ def query(
     General LLM query via NewAPI backend with a single system and user message.
     Supports function calling for some backends.
 
-    Only NewAPI supported models: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
+    Only NewAPI supported models: gpt-5, gpt-5, gpt-5-mini, gpt-5-nano
 
     Args:
         system_message (PromptType | None): Uncompiled system message (will generate a message following the OpenAI format)
         user_message (PromptType | None): Uncompiled user message (will generate a message following the OpenAI format)
-        model (str): string identifier for the model to use (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano)
+        model (str): string identifier for the model to use (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano)
         temperature (float | None, optional): Temperature to sample at. Defaults to the model-specific default.
         max_tokens (int | None, optional): Maximum number of tokens to generate. Defaults to the model-specific max tokens.
         func_spec (FunctionSpec | None, optional): Optional FunctionSpec object defining a function call. If given, the return value will be a dict.
@@ -43,7 +43,7 @@ def query(
         model_kwargs["reasoning_effort"] = reasoning_effort
         model_kwargs.pop("temperature", None)  # GPT-5 doesn't support temperature
     else:
-        # gpt-4o and other models
+        # gpt-5 and other models
         model_kwargs["max_tokens"] = max_tokens
 
     # All models use OpenAI backend via NewAPI

@@ -471,7 +471,7 @@ class Journal:
                 system_message=prompt,
                 user_message=None,
                 func_spec=node_selection_spec,
-                model="gpt-4o",
+                model="gpt-5",
                 temperature=0.3,
             )
 
@@ -535,7 +535,7 @@ class Journal:
                 "2. Common failure patterns and pitfalls to avoid\n"
                 "3. Specific recommendations for future experiments based on both successes and failures"
             ),
-            model="gpt-4o",
+            model="gpt-5",
             temperature=0.3,
         )
 

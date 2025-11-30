@@ -145,7 +145,7 @@ def test_idea_standardization():
             return True
 
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -292,7 +292,7 @@ def test_llm_for_experiments():
 Keep it short (under 10 lines)."""
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5",
             messages=[
                 {"role": "system", "content": "You are a Python code assistant. Output only code."},
                 {"role": "user", "content": prompt}
@@ -336,7 +336,7 @@ def test_mini_experiment(stage1_only=False):
 
         # Create model for standardization
         model = LiteLLMModel(
-            model_id="gpt-4o",
+            model_id="gpt-5",
             api_key=api_key,
             api_base=api_base
         )
@@ -375,10 +375,10 @@ def test_mini_experiment(stage1_only=False):
 
             result = tool.forward(
                 idea_json=standardized_idea,
-                code_model="gpt-4o",
-                feedback_model="gpt-4o",
-                vlm_model="gpt-4o",
-                report_model="gpt-4o",
+                code_model="gpt-5",
+                feedback_model="gpt-5",
+                vlm_model="gpt-5",
+                report_model="gpt-5",
                 end_stage=end_stage
             )
 

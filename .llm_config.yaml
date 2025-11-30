@@ -2,13 +2,13 @@
 # This file controls which language models are used by different components
 #
 # All models are accessed via NewAPI (newapi.tsingyuai.com/v1)
-# Supported models: gpt-5-nano, gpt-5-mini, gpt-5, gpt-4o
+# Supported models: gpt-5-nano, gpt-5-mini, gpt-5, gpt-5
 # Model fallback and retry are handled by NewAPI, not in code
 
 main_agents:
   # Model for all main agents (Manager, Ideation, Experimentation, Writeup)
-  # Using gpt-4o as default (stable and cost-effective via NewAPI)
-  model: gpt-4o
+  # Using gpt-5 as default (stable and cost-effective via NewAPI)
+  model: gpt-5
 
   # GPT-5 specific settings (uncomment if using gpt-5 series)
   # model: gpt-5
@@ -20,10 +20,10 @@ main_agents:
 
 run_experiment_tool:
   # Models for RunExperimentTool (AI-Scientist-v2 subprocess)
-  # Using gpt-4o for stability, can upgrade to gpt-5 for better results
-  code_model: gpt-4o
-  feedback_model: gpt-4o
-  vlm_model: gpt-4o
-  report_model: gpt-4o
+  # Using gpt-5 for stability, can upgrade to gpt-5 for better results
+  code_model: gpt-5
+  feedback_model: gpt-5
+  vlm_model: gpt-5
+  report_model: gpt-5
   # GPT-5 specific settings (used when code_model is gpt-5)
   reasoning_effort: high  # minimal, low, medium, high

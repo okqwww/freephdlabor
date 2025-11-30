@@ -15,7 +15,7 @@ AVAILABLE_LLMS = [
     "gpt-5-nano",
     "gpt-5-mini",
     "gpt-5",
-    "gpt-4o",
+    "gpt-5",
 ]
 
 

@@ -15,7 +15,7 @@ AVAILABLE_LLMS = [
     "gpt-5-nano",
     "gpt-5-mini",
     "gpt-5",
-    "gpt-4o",
+    "gpt-5",
 ]
 
 
@@ -213,7 +213,7 @@ def get_response_from_vlm(
         prompt: Text prompt for the VLM
         images: List of image file paths
         client: OpenAI client instance (configured for NewAPI)
-        model: Model name (e.g., gpt-4o)
+        model: Model name (e.g., gpt-5)
         system_message: System message for the conversation
         print_debug: Whether to print debug information
         msg_history: Previous conversation history
@@ -276,12 +276,12 @@ def get_response_from_vlm(
     return content_response, new_msg_history
 
 
-def create_vlm_client(model: str = "gpt-4o"):
+def create_vlm_client(model: str = "gpt-5"):
     """
     Create a VLM client for vision tasks via NewAPI.
 
     Args:
-        model: VLM model name (defaults to gpt-4o)
+        model: VLM model name (defaults to gpt-5)
 
     Returns:
         Tuple of (client, model_name)
@@ -289,9 +289,9 @@ def create_vlm_client(model: str = "gpt-4o"):
     api_key = os.environ.get("OPENAI_API_KEY", "")
     api_base = os.environ.get("OPENAI_BASE_URL", "https://newapi.tsingyuai.com/v1")
 
-    # Use gpt-4o as default VLM model via NewAPI
+    # Use gpt-5 as default VLM model via NewAPI
     if "gpt" not in model:
-        model = "gpt-4o"
+        model = "gpt-5"
 
     print(f"Using NewAPI VLM ({api_base}) with model {model}.")
     return openai.OpenAI(api_key=api_key, base_url=api_base), model

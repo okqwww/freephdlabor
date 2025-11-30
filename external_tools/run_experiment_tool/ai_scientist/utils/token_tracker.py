@@ -22,9 +22,9 @@ class TokenTracker:
         )
         self.interactions = defaultdict(list)
 
-        # NewAPI supported models only: gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano
+        # NewAPI supported models only: gpt-5, gpt-5, gpt-5-mini, gpt-5-nano
         self.MODEL_PRICES = {
-            "gpt-4o": {
+            "gpt-5": {
                 "prompt": 2.5 / 1000000,  # $2.50 per 1M tokens
                 "cached": 1.25 / 1000000,  # $1.25 per 1M tokens
                 "completion": 10 / 1000000,  # $10.00 per 1M tokens

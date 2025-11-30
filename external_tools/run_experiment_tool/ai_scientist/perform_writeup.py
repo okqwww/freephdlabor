@@ -456,8 +456,8 @@ def perform_writeup(
     base_folder,
     no_writing=False,
     num_cite_rounds=20,
-    small_model="gpt-4o",
-    big_model="gpt-4o",
+    small_model="gpt-5",
+    big_model="gpt-5",
     n_writeup_reflections=3,
     page_limit=8,
 ):
@@ -589,7 +589,7 @@ def perform_writeup(
 
         # Generate VLM-based descriptions but do not overwrite plot_names
         try:
-            vlm_client, vlm_model = create_vlm_client("gpt-4o")
+            vlm_client, vlm_model = create_vlm_client("gpt-5")
             desc_map = {}
             for pf in plot_names:
                 ppath = osp.join(figures_dir, pf)
@@ -768,16 +768,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o",
+        default="gpt-5",
         choices=AVAILABLE_LLMS,
-        help="Model to use for citation collection (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano).",
+        help="Model to use for citation collection (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano).",
     )
     parser.add_argument(
         "--big-model",
         type=str,
-        default="gpt-4o",
+        default="gpt-5",
         choices=AVAILABLE_LLMS,
-        help="Model to use for final writeup (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano).",
+        help="Model to use for final writeup (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano).",
     )
     parser.add_argument(
         "--writeup-reflections",

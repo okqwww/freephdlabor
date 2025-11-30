@@ -1,0 +1,51 @@
+===== COMPLETE EXPERIMENT STRUCTURE ANALYSIS =====
+
+FULL DIRECTORY TREE:
+experiment_data/
+├── idea.json
+├── idea.md
+├── bfts_config.yaml
+├── data/
+├── logs/
+│   └── 0-run/
+│       ├── baseline_summary.json
+│       ├── research_summary.json
+│       └── ablation_summary.json
+├── experiment_results/
+├── auto_plot_aggregator.py
+├── figures/
+│   ├── baseline_cifar10_10_epochs_train_acc.png
+│   ├── ... (additional figure files)
+
+FILE DESCRIPTIONS (Priority-Based Organization):
+
+=== TIER 1: Essential Experimental Artifacts ===
+
+--- Research Specifications ---
+FILE: idea.md
+PATH: experiment_data/idea.md | SIZE: XXXkB | TYPE: Research documentation
+CONTENT: Detailed experiment hypothesis, methodology, experiments, risk factors, and related work on dynamic learning rate schedules.
+
+FILE: idea.json
+PATH: experiment_data/idea.json | SIZE: XXXkB | TYPE: Research specification
+CONTENT: Provides structured information on the experiment including hypothesis, abstract, experiments, and risk factors.
+
+--- Experimental Summaries ---
+FILE: baseline_summary.json
+PATH: experiment_data/logs/0-run/baseline_summary.json | SIZE: XXXkB | TYPE: Experimental results summary
+CONTENT: Details the baseline experimental setup and findings with CIFAR-10, using ResNet for step decay learning rate schedules. Key metrics such as training and validation accuracy are observed.
+
+FILE: research_summary.json
+PATH: experiment_data/logs/0-run/research_summary.json | SIZE: XXXkB | TYPE: Research results summary
+CONTENT: Contains core findings and data from the main experimental variant focused on dynamic learning rate schedules.
+
+FILE: ablation_summary.json
+PATH: experiment_data/logs/0-run/ablation_summary.json | SIZE: XXXkB | TYPE: Ablation study results
+CONTENT: Explores various loss function ablations with different learning rate schedules, providing insights into performance variabilities.
+
+--- Implementation Files ---
+FILE: auto_plot_aggregator.py
+PATH: experiment_data/auto_plot_aggregator.py | SIZE: XXXkB | TYPE: Plot generation script
+CONTENT: Describes the architecture for generating combined metrics plots, facilitating visualization of experiment results.
+
+[Continue with content descriptions for all critical files]

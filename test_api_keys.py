@@ -62,7 +62,7 @@ def test_newapi_llm():
 
         # Test with a simple completion
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5",
             messages=[{"role": "user", "content": "Say 'API test successful' in exactly 3 words."}],
             max_tokens=20
         )

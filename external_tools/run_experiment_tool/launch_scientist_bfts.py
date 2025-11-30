@@ -85,20 +85,20 @@ def parse_arguments():
     parser.add_argument(
         "--model_agg_plots",
         type=str,
-        default="gpt-4o",
-        help="Model to use for plot aggregation (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano)",
+        default="gpt-5",
+        help="Model to use for plot aggregation (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano)",
     )
     parser.add_argument(
         "--model_writeup",
         type=str,
-        default="gpt-4o",
-        help="Model to use for writeup (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano)",
+        default="gpt-5",
+        help="Model to use for writeup (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano)",
     )
     parser.add_argument(
         "--model_citation",
         type=str,
-        default="gpt-4o",
-        help="Model to use for citation gathering (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano)",
+        default="gpt-5",
+        help="Model to use for citation gathering (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano)",
     )
     parser.add_argument(
         "--num_cite_rounds",
@@ -109,8 +109,8 @@ def parse_arguments():
     parser.add_argument(
         "--model_review",
         type=str,
-        default="gpt-4o",
-        help="Model to use for review main text and captions (gpt-4o, gpt-5, gpt-5-mini, gpt-5-nano)",
+        default="gpt-5",
+        help="Model to use for review main text and captions (gpt-5, gpt-5, gpt-5-mini, gpt-5-nano)",
     )
     parser.add_argument(
         "--skip_writeup",

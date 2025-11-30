@@ -1,0 +1,65 @@
+
+\section{Results}
+
+The experimental evaluation centered around assessing the performance of ResNet on the CIFAR-10 dataset, employing both static and dynamic learning rate schedules. The experiments utilized two distinct epoch settings, namely 10 and 20 epochs, to discern the impact of extended training periods on model efficacy.
+
+Quantitative analysis revealed a marked improvement in training accuracy as the epoch count increased. Specifically, the accuracy peaked at 99.51\% after 20 epochs, underscoring substantial model adaptation to the training data. Notwithstanding, the validation accuracy exhibited only a modest increment, reaching a maximum of 75.7\%. This disparity suggests potential overfitting, as the model's ability to generalize to unseen data did not proportionally advance with the training accuracy improvements.
+
+Further supporting these observations, the loss curves delineate a decisive divergence between train and validation loss metrics beyond the 10-epoch threshold. The visualizations derived from these metrics unambiguously illustrate that static learning rate schedules are conducive to traditional overfitting patterns. Figure \ref{fig:overfitting} encapsulates these trends, offering visual evidence of the model's trajectory concerning overfitting tendencies.
+
+The investigation into dynamic learning rate schedules presents a compelling case for enhanced generalization capabilities. By adjusting learning rates dynamically, the experiment posits a more adaptive training process that may circumvent the overfitting issues observed under static conditions. Such strategies, when properly implemented, could potentially mitigate overfitting, thereby bolstering validation performance.
+
+In light of these findings, the necessity for adopting dynamic modification strategies becomes apparent. These approaches hold promise for alleviating overfitting effects and could play an instrumental role in augmenting the model's generalization abilities. Future work should aim at refining these strategies to exploit their full potential and substantiate their efficacy through comprehensive empirical validation.
+
+\begin{figure}[h]
+\centering
+
+% \includegraphics{figures/overfitting.png} % Temporary removal due to missing file
+% \caption{Illustration of overfitting patterns with static learning rate schedules. The figure highlights the divergence between training and validation loss beyond the 10 epochs.}
+% \label{fig:overfitting}
+
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/baseline_cifar10_10_epochs_train_acc.png} % Corrected path
+    \caption{Train accuracy over 10 epochs using baseline schedule on CIFAR-10.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/baseline_cifar10_10_epochs_val_acc.png} % Corrected path
+    \caption{Validation accuracy over 10 epochs using baseline schedule on CIFAR-10.}
+\end{figure}
+
+\section{Results}
+This section presents key findings from CIFAR-10 experiments. As shown in Figure 1 and supported by data metrics in Table 1, the training and validation accuracy improves across epochs.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{figures/CIFAR10_train_val_accuracy.png}
+  \caption{Training and Validation Accuracy}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\linewidth]{figures/CIFAR10_train_val_loss.png}
+  \caption{Training and Validation Loss}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{c|c|c}
+\hline
+\textbf{Epoch} & \textbf{Training Accuracy} & \textbf{Validation Accuracy} \\
+\hline
+1 & 37.274 & 48.09 \\
+2 & 53.65 & 55.99 \\
+3 & 61.652 & 63.05 \\
+4 & 67.848 & 67.42 \\
+5 & 71.57 & 68.0 \\
+\hline
+\end{tabular}
+\caption{Training and Validation Accuracy Metrics}
+\end{table}
+
+
